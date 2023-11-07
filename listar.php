@@ -1,48 +1,43 @@
 <?php
-
 include 'conexao.php';
 
-if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
-    $id = $_GET['id'];
-
-    $sql = "SELECT nome, email, senha, informacoes_Perfil FROM usuarios WHERE id = ?";
-    $stmt = $conexao->prepare($sql);
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result->num_rows > 0) {
-        $usuario = $result->fetch_assoc();
-    } else {
-        echo "Nenhum usuário encontrado";
-        exit;
-    }
-
-    $stmt->close();
-} else {
-    echo "ID não fornecido.";
-    exit;
-}
-
-$conexao->close();
-
+$sql = "SELECT id, nome, email, senha, informacoes_perfil FROM usuarios";
+$result = $conexao->query($sql);
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Detalhes do Usuário</title>
-</head>
-<body>
+<h1>usuarios</h1>
+<a href="adicionar.php">Adicionar Novo usuário</a>
+<table border="1">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>nome</th>
+            <th>email</th>
+            <th>senha </th>
+            <th>informacoes_perfil</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php
+        if ($result->num_rows > 0) {
+            while($row = $result->fetch_assoc()) {
+                echo "<tr>";
+                echo "<td>" . $row["id"] . "</td>";
+                echo "<td>" . $row["nome"] . "</td>";
+                echo "<td>" . $row["email"] . "</td>";
+                echo "<td>" . $row["senha"] . "</td>";
+                echo "<td>" . $row["informacoes_perfil"] . "</td>";
 
-    <h1>Detalhes do Usuário</h1>
+                echo "<td><a href='editar.php?id=" . $row["id"] . "'>Editar</a> | <a href='deletar.php?id=" . $row["id"] . "'>Deletar</a></td>";
+                echo "</tr>";
+            }
+        } else {
+            echo "<tr><td colspan='5'>Sem tarefas</td></tr>";
+        }
+        ?>
+    </tbody>
+</table>
 
-    <ul>
-        <li><strong>Nome:</strong> <?php echo $usuario['nome']; ?></li>
-        <li><strong>Email:</strong> <?php echo $usuario['email']; ?></li>
-        <li><strong>Senha:</strong> <?php echo $usuario['senha']; ?></li>
-        <li><strong>Informações do Perfil:</strong> <?php echo $usuario['informacoes_Perfil']; ?></li>
-    </ul>
-
-</body>
-</html>
+<?php
+$conexao->close();
+?>
